@@ -14,7 +14,7 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 import static java.lang.Thread.sleep;
 
 @TeleOp
-public class teleop1 extends OpMode {
+public class MecanumTeleOpTest extends OpMode {
     private DcMotor lrMotor;
     private DcMotor rrMotor;
     private DcMotor lfMotor;

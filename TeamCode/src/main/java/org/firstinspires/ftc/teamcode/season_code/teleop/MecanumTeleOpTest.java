@@ -10,27 +10,18 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.sun.tools.javac.tree.DCTree;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.teamcode.hardware.Bot;
 
 import static java.lang.Thread.sleep;
 
 @TeleOp
 public class MecanumTeleOpTest extends OpMode {
-    private DcMotor lrMotor;
-    private DcMotor rrMotor;
-    private DcMotor lfMotor;
-    private DcMotor rfMotor;
-    private CRServo duck;
 
+    private Bot bot;
 
     @Override
     public void init() {
-        rrMotor = hardwareMap.get(DcMotor.class, "Right Back Motor");
-        lfMotor = hardwareMap.get(DcMotor.class, "Left Front Motor");
-        lrMotor = hardwareMap.get(DcMotor.class, "Left Back Motor");
-        rfMotor = hardwareMap.get(DcMotor.class, "Right Front Motor");
-        duck = hardwareMap.get(CRServo.class, "Duck");
-        rrMotor.setDirection(DcMotorSimple.Direction.REVERSE);
-        rfMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+        Bot bot = new Bot(this.hardwareMap);
     }
 
     @Override
@@ -49,15 +40,10 @@ public class MecanumTeleOpTest extends OpMode {
             turn *= -1;
         }
 
-
-
-
-        double angle = Math.atan2(forward, -gamepad1.left_stick_x) - Math.PI/4;
-        double mag = Math.hypot(forward, -gamepad1.left_stick_x);
-        //double turn = -gamepad1.right_stick_x;
+        double angle = Math.atan2(forward, -strafe) - Math.PI/4;
+        double mag = Math.hypot(forward, -strafe);
 
         double mod = 1;
-
 
         if (gamepad1.right_bumper) {
             mod = 0.5;
@@ -68,13 +54,7 @@ public class MecanumTeleOpTest extends OpMode {
         double lrPower = (mag * Math.sin(angle) + turn) * mod;
         double rrPower = (mag * Math.cos(angle) - turn) * mod;
 
-
-
-        rfMotor.setPower(rfPower);
-        lrMotor.setPower(lrPower);
-
-        rrMotor.setPower(rrPower);
-        lfMotor.setPower(lfPower);
+        bot.setDrivePower(lfPower, rfPower, lrPower, rrPower);
 
         telemetry.addData("Left Front Power", lfPower);
         telemetry.addData("Right Front Power", rfPower);

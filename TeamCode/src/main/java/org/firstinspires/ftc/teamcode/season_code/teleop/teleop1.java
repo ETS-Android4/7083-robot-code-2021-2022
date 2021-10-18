@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.season_code.teleop;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Gamepad;
@@ -10,14 +11,16 @@ import com.sun.tools.javac.tree.DCTree;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
+import static java.lang.Thread.sleep;
+
 @TeleOp
 public class teleop1 extends OpMode {
-
     private DcMotor lrMotor;
     private DcMotor rrMotor;
     private DcMotor lfMotor;
     private DcMotor rfMotor;
-    private Servo duck;
+    private CRServo duck;
+
 
     @Override
     public void init() {
@@ -25,8 +28,7 @@ public class teleop1 extends OpMode {
         lfMotor = hardwareMap.get(DcMotor.class, "Left Front Motor");
         lrMotor = hardwareMap.get(DcMotor.class, "Left Back Motor");
         rfMotor = hardwareMap.get(DcMotor.class, "Right Front Motor");
-
-        duck = hardwareMap.get(Servo.class, "Duck");
+        duck = hardwareMap.get(CRServo.class, "Duck");
         rrMotor.setDirection(DcMotorSimple.Direction.REVERSE);
         rfMotor.setDirection(DcMotorSimple.Direction.REVERSE);
     }
@@ -47,9 +49,7 @@ public class teleop1 extends OpMode {
             turn *= -1;
         }
 
-        if (gamepad1.a) {
-            duck.setPosition();
-        }
+
 
 
         double angle = Math.atan2(forward, -gamepad1.left_stick_x) - Math.PI/4;
@@ -57,6 +57,7 @@ public class teleop1 extends OpMode {
         //double turn = -gamepad1.right_stick_x;
 
         double mod = 1;
+
 
         if (gamepad1.right_bumper) {
             mod = 0.5;

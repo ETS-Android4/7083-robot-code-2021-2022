@@ -16,35 +16,28 @@ public class Bot {
 
     private DcMotor collectorMotor;
 
-    private CRServo duck;
-
     /**
      * This is the constructor for the bot class - it's what sets the initial values for the variables when the class is created
      * @param map
      */
     public Bot(HardwareMap map) {
         // Get the 4 motors from the robot hardware
-        rightRearMotor = map.get(DcMotor.class, "Right Back Motor");
-        leftFrontMotor = map.get(DcMotor.class, "Left Front Motor");
-        leftRearMotor = map.get(DcMotor.class, "Left Back Motor");
-        rightFrontMotor = map.get(DcMotor.class, "Right Front Motor");
-
-        // Duck servo - currently nonfunctional
-        duck = map.get(CRServo.class, "Duck");
+        this.rightRearMotor = map.get(DcMotor.class, "br");
+        this.leftFrontMotor = map.get(DcMotor.class, "fl");
+        this.leftRearMotor = map.get(DcMotor.class, "bl");
+        this.rightFrontMotor = map.get(DcMotor.class, "fr");
         // Map the motor for the freight collector
-        collectorMotor = map.get(DcMotor.class, "Collector");
+        this.collectorMotor = map.get(DcMotor.class, "collector");
 
         // Reverse the two right motors
-        rightRearMotor.setDirection(DcMotorSimple.Direction.REVERSE);
-        rightFrontMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+        // Back right is wired incorrectly, temporarily compensating for that by NOT reversing it in code
+        //this.rightRearMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+        this.rightFrontMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+
     }
 
-    public void startCollector() {
-        collectorMotor.setPower(1);
-    }
-
-    public void stopCollector() {
-        collectorMotor.setPower(0);
+    public void setCollectorPower(double p) {
+        collectorMotor.setPower(p);
     }
 
     public void reverseCollector() {

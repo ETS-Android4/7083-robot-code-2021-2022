@@ -19,9 +19,12 @@ public class MecanumTeleOpTest extends OpMode {
 
     private Bot bot;
 
+    private long collectorFlipTime;
+
     @Override
     public void init() {
-        Bot bot = new Bot(this.hardwareMap);
+        this.bot = new Bot(this.hardwareMap);
+        this.collectorFlipTime = System.currentTimeMillis();
     }
 
     @Override
@@ -55,6 +58,15 @@ public class MecanumTeleOpTest extends OpMode {
         double rrPower = (mag * Math.cos(angle) - turn) * mod;
 
         bot.setDrivePower(lfPower, rfPower, lrPower, rrPower);
+
+        // Set the collector power to whatever the right trigger is at
+        bot.setCollectorPower(gamepad1.right_trigger);
+
+        // Only allow the collector direction to be reversed once per second, to prevent flapping
+        if (gamepad1.a && System.currentTimeMillis() - collectorFlipTime > 1000) {
+            bot.reverseCollector();
+            collectorFlipTime = System.currentTimeMillis();
+        }
 
         telemetry.addData("Left Front Power", lfPower);
         telemetry.addData("Right Front Power", rfPower);

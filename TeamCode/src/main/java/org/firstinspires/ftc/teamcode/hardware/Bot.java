@@ -1,11 +1,10 @@
 package org.firstinspires.ftc.teamcode.hardware;
 
-import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
-import com.qualcomm.robotcore.hardware.ServoController;
+
 import java.lang.*;
 
 /**
@@ -20,7 +19,16 @@ public class Bot {
     private DcMotor collectorMotor;
 
     private Servo bucket;
-    public boolean bucket_moving;
+    private boolean bucket_deployed;
+
+    private final double BUCKET_RESET_POSITION = 0;
+
+    private final double BUCKET_DEPLOY_POSITION = 0.5;
+
+    private final double BUCKET_DELAY_TIME = 2000;
+
+    private double last_bucket_deploy_time;
+
 
 
     /**
@@ -37,7 +45,9 @@ public class Bot {
         this.collectorMotor = map.get(DcMotor.class, "collector");
         // Map the bucket motor
         this.bucket = map.get(Servo.class, "bucket");
-        this.bucket_moving = false;
+        this.bucket_deployed = false;
+
+        this.last_bucket_deploy_time = 0;
 
         // Reverse the two right motors
         // Back right is wired incorrectly, temporarily compensating for that by NOT reversing it in code
@@ -66,18 +76,20 @@ public class Bot {
         rightRearMotor.setPower(rightRearPower);
     }
 
-    public void dump_bucket() {
-        if (this.bucket_moving == false) {
-            this.bucket_moving = true;
-            bucket.setPosition(0.5);
-            try {
-                Thread.sleep(2000);
-            } catch (Exception e) {
-                System.out.println(e);
-            }
-
-            bucket.setPosition(0.0);
-            this.bucket_moving = false;
+    public void dumpBucket() {
+        if (!this.bucket_deployed) {
+            this.bucket.setPosition(BUCKET_DEPLOY_POSITION);
+            this.last_bucket_deploy_time = System.currentTimeMillis();
+            this.bucket_deployed = true;
         }
     }
+
+    public void checkBucketState() {
+        if (this.bucket_deployed && System.currentTimeMillis() >= this.last_bucket_deploy_time + BUCKET_DELAY_TIME) {
+            // Start moving the bucket backwards
+            this.bucket_deployed = false;
+            this.bucket.setPosition(BUCKET_RESET_POSITION);
+        }
+    }
+
 }

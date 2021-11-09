@@ -2,14 +2,7 @@ package org.firstinspires.ftc.teamcode.season_code.teleop;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.CRServo;
-import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.hardware.Gamepad;
-import com.qualcomm.robotcore.hardware.Servo;
-import com.sun.tools.javac.tree.DCTree;
 
-import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.hardware.Bot;
 
 import static java.lang.Thread.sleep;
@@ -68,8 +61,14 @@ public class MecanumTeleOpTest extends OpMode {
             collectorFlipTime = System.currentTimeMillis();
         }
 
+        // Bucket logic
+
         if (gamepad1.dpad_up) {
-            bot.dump_bucket();
+            bot.dumpBucket();
+        }
+        else {
+            // Checks if we need to reset the bucket and resets it if needed
+            bot.checkBucketState();
         }
 
         telemetry.addData("Left Front Power", lfPower);

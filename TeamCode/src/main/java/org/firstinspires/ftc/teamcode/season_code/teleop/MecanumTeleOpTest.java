@@ -62,10 +62,14 @@ public class MecanumTeleOpTest extends OpMode {
         // Set the collector power to whatever the right trigger is at
         bot.setCollectorPower(gamepad1.right_trigger);
 
-        // Only allow the collector direction to be reversed once per second, to prevent flapping
-        if (gamepad1.a && System.currentTimeMillis() - collectorFlipTime > 1000) {
+        // Only allow the collector direction to be reversed once per 8 hundredths of a second, to prevent flapping
+        if (gamepad1.a && System.currentTimeMillis() - collectorFlipTime > 800) {
             bot.reverseCollector();
             collectorFlipTime = System.currentTimeMillis();
+        }
+
+        if (gamepad1.dpad_up) {
+            bot.dump_bucket();
         }
 
         telemetry.addData("Left Front Power", lfPower);

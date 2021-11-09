@@ -62,7 +62,6 @@ public class MecanumTeleOpTest extends OpMode {
         }
 
         // Bucket logic
-
         if (gamepad1.dpad_up) {
             bot.dumpBucket();
         }

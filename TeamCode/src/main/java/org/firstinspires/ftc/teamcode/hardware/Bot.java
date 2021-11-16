@@ -17,6 +17,7 @@ public class Bot {
     private DcMotor rightFrontMotor;
 
     private DcMotor collectorMotor;
+    private DcMotor liftMotor;
 
     private Servo bucket;
     private boolean bucket_deployed;
@@ -26,6 +27,8 @@ public class Bot {
     private final double BUCKET_DEPLOY_POSITION = 0.5;
 
     private final double BUCKET_DELAY_TIME = 2000;
+
+    private final double LIFT_SPEED = 0.25;
 
     private double last_bucket_deploy_time;
 
@@ -46,6 +49,8 @@ public class Bot {
         // Map the bucket motor
         this.bucket = map.get(Servo.class, "bucket");
         this.bucket_deployed = false;
+
+        this.liftMotor = map.get(DcMotor.class, "lift");
 
         this.last_bucket_deploy_time = 0;
 
@@ -92,4 +97,16 @@ public class Bot {
         }
     }
 
+    public void lift(boolean toggle) {
+        if (toggle) {
+            liftMotor.setPower(0.4);
+        } else {
+            liftMotor.setPower(-0.4);
+        }
+    }
+
+
+    public float returnPosition() {
+        return liftMotor.getCurrentPosition();
+    }
 }

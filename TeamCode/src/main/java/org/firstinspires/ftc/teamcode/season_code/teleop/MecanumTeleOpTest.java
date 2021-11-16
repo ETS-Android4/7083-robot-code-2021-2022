@@ -52,8 +52,8 @@ public class MecanumTeleOpTest extends OpMode {
 
         bot.setDrivePower(lfPower, rfPower, lrPower, rrPower);
 
-        // Set the collector power to whatever the right trigger is at
-        bot.setCollectorPower(gamepad1.right_trigger);
+        // Set the collector power to whatever the right trigger is at. Divide by 2 to half the amount of power the motors use
+        bot.setCollectorPower(gamepad1.right_trigger/2);
 
         // Only allow the collector direction to be reversed once per 8 hundredths of a second, to prevent flapping
         if (gamepad1.a && System.currentTimeMillis() - collectorFlipTime > 800) {
@@ -62,7 +62,7 @@ public class MecanumTeleOpTest extends OpMode {
         }
 
         // Bucket logic
-        if (gamepad1.dpad_up) {
+        if (gamepad1.dpad_down) {
             bot.dumpBucket();
         }
         else {
@@ -70,10 +70,15 @@ public class MecanumTeleOpTest extends OpMode {
             bot.checkBucketState();
         }
 
+        // Lift logic
+        bot.lift(!gamepad1.dpad_up);
+
         telemetry.addData("Left Front Power", lfPower);
         telemetry.addData("Right Front Power", rfPower);
         telemetry.addData("Right Back Power", rrPower);
         telemetry.addData("Left Back Power", lfPower);
+
+        telemetry.addData("Position of the lift", bot.returnPosition());
 
         telemetry.update();
     }

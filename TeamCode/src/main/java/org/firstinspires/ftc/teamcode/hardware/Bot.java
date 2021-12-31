@@ -17,6 +17,7 @@ public class Bot {
     private DcMotor rightFrontMotor;
 
     private DcMotor collectorMotor;
+    private DcMotor Duck;
     private DcMotor liftMotor;
 
     private Servo bucket;
@@ -30,15 +31,23 @@ public class Bot {
 
     private final double LIFT_SPEED = 0.25;
 
-    private double last_bucket_deploy_time;
+    private double arm_target_position;
+
+    private double ARM_UP_POS = 650;
+    private double ARM_DOWN_POS = 0;
+
+    //private boolean arm_up;
 
 
+    public Bot(HardwareMap map) {
+        this(map, 650, 0);
+    }
 
     /**
      * This is the constructor for the bot class - it's what sets the initial values for the variables when the class is created
      * @param map
      */
-    public Bot(HardwareMap map) {
+    public Bot(HardwareMap map, double arm_up_pos, double arm_down_pos) {
         // Get the 4 motors from the robot hardware
         this.rightRearMotor = map.get(DcMotor.class, "br");
         this.leftFrontMotor = map.get(DcMotor.class, "fl");
@@ -51,8 +60,16 @@ public class Bot {
         this.bucket_deployed = false;
 
         this.liftMotor = map.get(DcMotor.class, "lift");
+        this.liftMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+        this.liftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        this.liftMotor.setTargetPosition(0);
+        this.liftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        this.liftMotor.setPower(0.75);
 
-        this.last_bucket_deploy_time = 0;
+        this.Duck = map.get(DcMotor.class, "Duck");
+
+        this.ARM_UP_POS = arm_up_pos;
+        this.ARM_DOWN_POS = arm_down_pos;
 
         // Reverse the two right motors
         // Back right is wired incorrectly, temporarily compensating for that by NOT reversing it in code
@@ -81,29 +98,40 @@ public class Bot {
         rightRearMotor.setPower(rightRearPower);
     }
 
-    public void dumpBucket() {
-        if (!this.bucket_deployed) {
-            this.bucket.setPosition(BUCKET_DEPLOY_POSITION);
-            this.last_bucket_deploy_time = System.currentTimeMillis();
-            this.bucket_deployed = true;
-        }
+
+    public void raiseArm() {
+        this.liftMotor.setTargetPosition(650);
     }
 
-    public void checkBucketState() {
-        if (this.bucket_deployed && System.currentTimeMillis() >= this.last_bucket_deploy_time + BUCKET_DELAY_TIME) {
-            // Start moving the bucket backwards
-            this.bucket_deployed = false;
-            this.bucket.setPosition(BUCKET_RESET_POSITION);
-        }
+    public void lowerArm() {
+        this.liftMotor.setTargetPosition(0);
     }
 
-    public void lift(boolean toggle) {
-        if (toggle) {
-            liftMotor.setPower(0.4);
+    public void moveArm() {
+
+        //float p = 1/155;
+        double error = (this.arm_target_position - liftMotor.getCurrentPosition());
+
+        double power = error * 0.0054;
+
+        /*
+        if (Math.abs(power) < 0.4) {
+            power = 0;
+        }
+         */
+
+        liftMotor.setPower(power);
+
+    }
+
+    public void moveDuck(boolean enabled) {
+        if (enabled) {
+            this.Duck.setPower(0.85);
         } else {
-            liftMotor.setPower(-0.4);
+            this.Duck.setPower(0);
         }
     }
+
 
 
     public float returnPosition() {

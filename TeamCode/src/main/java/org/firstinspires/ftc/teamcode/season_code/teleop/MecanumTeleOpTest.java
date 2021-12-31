@@ -1,12 +1,15 @@
 package org.firstinspires.ftc.teamcode.season_code.teleop;
 
+import com.acmerobotics.dashboard.FtcDashboard;
+import com.acmerobotics.dashboard.config.Config;
+import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.hardware.Bot;
 
 import static java.lang.Thread.sleep;
-
+@Config
 @TeleOp
 public class MecanumTeleOpTest extends OpMode {
 
@@ -14,10 +17,16 @@ public class MecanumTeleOpTest extends OpMode {
 
     private long collectorFlipTime;
 
+    public static double ARM_UP_POS = 1000;
+    public static double ARM_DOWN_POS = 0;
+
+
     @Override
     public void init() {
-        this.bot = new Bot(this.hardwareMap);
+        this.bot = new Bot(this.hardwareMap, ARM_UP_POS, ARM_DOWN_POS);
         this.collectorFlipTime = System.currentTimeMillis();
+        telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
+
     }
 
     @Override
@@ -42,7 +51,7 @@ public class MecanumTeleOpTest extends OpMode {
         double mod = 1;
 
         if (gamepad1.right_bumper) {
-            mod = 0.5;
+            mod = 0.25;
         }
 
         double lfPower = (mag * Math.cos(angle) + turn) * mod;
@@ -53,7 +62,7 @@ public class MecanumTeleOpTest extends OpMode {
         bot.setDrivePower(lfPower, rfPower, lrPower, rrPower);
 
         // Set the collector power to whatever the right trigger is at. Divide by 2 to half the amount of power the motors use
-        bot.setCollectorPower(gamepad1.right_trigger/2);
+        bot.setCollectorPower(gamepad1.right_trigger);
 
         // Only allow the collector direction to be reversed once per 8 hundredths of a second, to prevent flapping
         if (gamepad1.a && System.currentTimeMillis() - collectorFlipTime > 800) {
@@ -61,17 +70,17 @@ public class MecanumTeleOpTest extends OpMode {
             collectorFlipTime = System.currentTimeMillis();
         }
 
-        // Bucket logic
-        if (gamepad1.dpad_down) {
-            bot.dumpBucket();
-        }
-        else {
-            // Checks if we need to reset the bucket and resets it if needed
-            bot.checkBucketState();
+        if (gamepad1.y) {
+            bot.raiseArm();
         }
 
-        // Lift logic
-        bot.lift(!gamepad1.dpad_up);
+        if (gamepad1.b) {
+            bot.lowerArm();
+        }
+
+        bot.moveDuck(gamepad1.right_bumper);
+
+        //bot.moveArm();
 
         telemetry.addData("Left Front Power", lfPower);
         telemetry.addData("Right Front Power", rfPower);

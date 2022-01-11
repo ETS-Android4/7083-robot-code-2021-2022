@@ -1,7 +1,6 @@
 package org.firstinspires.ftc.teamcode.season_code.teleop;
 
 import com.acmerobotics.dashboard.FtcDashboard;
-import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -9,7 +8,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.teamcode.hardware.Bot;
 
 import static java.lang.Thread.sleep;
-@Config
+
 @TeleOp
 public class MecanumTeleOpTest extends OpMode {
 
@@ -17,17 +16,17 @@ public class MecanumTeleOpTest extends OpMode {
 
     private long collectorFlipTime;
 
-    public static double ARM_UP_POS = 1000;
-    public static double ARM_DOWN_POS = 0;
-
+    public static double COLLECTOR_SPEED = 0.1;
 
     @Override
     public void init() {
-        this.bot = new Bot(this.hardwareMap, ARM_UP_POS, ARM_DOWN_POS);
+        this.bot = new Bot(this.hardwareMap);
         this.collectorFlipTime = System.currentTimeMillis();
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
 
     }
+
+    private double mod = 0.75;
 
     @Override
     public void loop() {
@@ -37,7 +36,7 @@ public class MecanumTeleOpTest extends OpMode {
             forward *= -1;
         }
         double strafe = Math.pow(gamepad1.left_stick_x, 2);
-        if (gamepad1.left_stick_x > 0) {
+        if (gamepad1.left_stick_x < 0) {
             strafe *= -1;
         }
         double turn = Math.pow(gamepad1.right_stick_x, 2);
@@ -48,21 +47,22 @@ public class MecanumTeleOpTest extends OpMode {
         double angle = Math.atan2(forward, -strafe) - Math.PI/4;
         double mag = Math.hypot(forward, -strafe);
 
-        double mod = 1;
-
-        if (gamepad1.right_bumper) {
-            mod = 0.25;
-        }
-
-        double lfPower = (mag * Math.cos(angle) + turn) * mod;
-        double rfPower = (mag * Math.sin(angle) - turn) * mod;
-        double lrPower = (mag * Math.sin(angle) + turn) * mod;
-        double rrPower = (mag * Math.cos(angle) - turn) * mod;
+        double lfPower = (mag * Math.cos(angle) + turn) * this.mod;
+        double rfPower = (mag * Math.sin(angle) - turn) * this.mod;
+        double lrPower = (mag * Math.sin(angle) + turn) * this.mod;
+        double rrPower = (mag * Math.cos(angle) - turn) * this.mod;
 
         bot.setDrivePower(lfPower, rfPower, lrPower, rrPower);
 
         // Set the collector power to whatever the right trigger is at. Divide by 2 to half the amount of power the motors use
-        bot.setCollectorPower(gamepad1.right_trigger);
+       if (gamepad1.right_bumper){
+           bot.setCollectorPower(COLLECTOR_SPEED);
+       }
+       else  {
+           bot.setCollectorPower(0);
+       }
+
+
 
         // Only allow the collector direction to be reversed once per 8 hundredths of a second, to prevent flapping
         if (gamepad1.a && System.currentTimeMillis() - collectorFlipTime > 800) {
@@ -73,12 +73,24 @@ public class MecanumTeleOpTest extends OpMode {
         if (gamepad1.y) {
             bot.raiseArm();
         }
-
+        if (gamepad1.x){
+            bot.midArm();
+        }
         if (gamepad1.b) {
             bot.lowerArm();
         }
 
-        bot.moveDuck(gamepad1.right_bumper);
+        if (gamepad1.dpad_down) {
+            this.mod = 0.75;
+        }
+
+        if (gamepad1.dpad_up) {
+            this.mod = 1;
+        }
+
+        bot.moveDuckReverse(gamepad1.left_trigger);
+
+        bot.moveDuckForward(gamepad1.right_trigger);
 
         //bot.moveArm();
 

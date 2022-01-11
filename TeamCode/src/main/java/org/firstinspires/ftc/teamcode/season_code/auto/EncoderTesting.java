@@ -83,10 +83,10 @@ public class EncoderTesting extends LinearOpMode {
 
     static final double     COUNTS_PER_MOTOR_REV    = 537.6;    // eg: TETRIX Motor Encoder
     static final double     DRIVE_GEAR_REDUCTION    = 1 ;     // This is < 1.0 if geared UP
-    static final double     WHEEL_DIAMETER_INCHES   = 3.78 ;     // For figuring circumference
+    static final double     WHEEL_DIAMETER_INCHES   = 3.77953 ;     // For figuring circumference
     static final double     COUNTS_PER_INCH         =
             (WHEEL_DIAMETER_INCHES * 3.1415)/(COUNTS_PER_MOTOR_REV * DRIVE_GEAR_REDUCTION);
-    static final double     DRIVE_SPEED             = 0.25;
+    static final double     DRIVE_SPEED             = 0.5;
     static final double     TURN_SPEED              = 0.25;
 
     @Override
@@ -158,7 +158,8 @@ public class EncoderTesting extends LinearOpMode {
             newRightTarget = RightFront.getCurrentPosition() + (int)(rightInches * COUNTS_PER_INCH);
             LeftFront.setTargetPosition(newLeftTarget);
             RightFront.setTargetPosition(newRightTarget);
-
+            LeftRear.setTargetPosition(newLeftTarget);
+            RightRear.setTargetPosition(newRightTarget);
             // Turn On RUN_TO_POSITION
             LeftFront.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             RightFront.setMode(DcMotor.RunMode.RUN_TO_POSITION);

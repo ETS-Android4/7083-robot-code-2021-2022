@@ -1,22 +1,25 @@
 package org.firstinspires.ftc.teamcode.hardware;
 
+import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
-import java.lang.*;
+import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.telemetry;
 
 /**
  * We will use this file to define all hardware mappings for our 2021-2022 robot
  */
+@Config
 public class Bot {
     private DcMotor leftRearMotor;
     private DcMotor rightRearMotor;
     private DcMotor leftFrontMotor;
     private DcMotor rightFrontMotor;
 
-    private DcMotor collectorMotor;
+    private DcMotorEx collectorMotor;
     private DcMotor Duck;
     private DcMotor liftMotor;
 
@@ -33,28 +36,28 @@ public class Bot {
 
     private double arm_target_position;
 
-    private double ARM_UP_POS = 650;
-    private double ARM_DOWN_POS = 0;
+    public static int ARM_UP_POS = 795;
+    public static int ARM_MID_POS = 397;
+    public static int ARM_DOWN_POS = 0;
+
+    public boolean duck_reversed;
+
 
     //private boolean arm_up;
-
-
-    public Bot(HardwareMap map) {
-        this(map, 650, 0);
-    }
 
     /**
      * This is the constructor for the bot class - it's what sets the initial values for the variables when the class is created
      * @param map
      */
-    public Bot(HardwareMap map, double arm_up_pos, double arm_down_pos) {
+    public Bot(HardwareMap map) {
         // Get the 4 motors from the robot hardware
         this.rightRearMotor = map.get(DcMotor.class, "br");
         this.leftFrontMotor = map.get(DcMotor.class, "fl");
         this.leftRearMotor = map.get(DcMotor.class, "bl");
         this.rightFrontMotor = map.get(DcMotor.class, "fr");
         // Map the motor for the freight collector
-        this.collectorMotor = map.get(DcMotor.class, "collector");
+        this.collectorMotor = (DcMotorEx) map.get(DcMotor.class, "collector");
+        this.collectorMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         // Map the bucket motor
         this.bucket = map.get(Servo.class, "bucket");
         this.bucket_deployed = false;
@@ -68,8 +71,8 @@ public class Bot {
 
         this.Duck = map.get(DcMotor.class, "Duck");
 
-        this.ARM_UP_POS = arm_up_pos;
-        this.ARM_DOWN_POS = arm_down_pos;
+        this.duck_reversed = false;
+
 
         // Reverse the two right motors
         // Back right is wired incorrectly, temporarily compensating for that by NOT reversing it in code
@@ -100,11 +103,14 @@ public class Bot {
 
 
     public void raiseArm() {
-        this.liftMotor.setTargetPosition(650);
+        this.liftMotor.setTargetPosition(ARM_UP_POS);
     }
 
     public void lowerArm() {
-        this.liftMotor.setTargetPosition(0);
+        this.liftMotor.setTargetPosition(ARM_DOWN_POS);
+    }
+    public  void midArm() {
+        this.liftMotor.setTargetPosition(ARM_MID_POS);
     }
 
     public void moveArm() {
@@ -124,15 +130,21 @@ public class Bot {
 
     }
 
-    public void moveDuck(boolean enabled) {
-        if (enabled) {
-            this.Duck.setPower(0.85);
-        } else {
-            this.Duck.setPower(0);
-        }
+    public void moveDuckReverse(float powerMultiplier) {
+        this.Duck.setDirection(DcMotorSimple.Direction.REVERSE);
+
+        this.Duck.setPower(1 * powerMultiplier);
     }
 
+    public void moveDuckForward(float powerMultiplier) {
+        this.Duck.setDirection(DcMotorSimple.Direction.FORWARD);
 
+        this.Duck.setPower(0.85 * powerMultiplier);
+    }
+
+    public void robotTelemetry() {
+        telemetry.addData("Collector Velocity", this.collectorMotor.getVelocity() / 28);
+    }
 
     public float returnPosition() {
         return liftMotor.getCurrentPosition();

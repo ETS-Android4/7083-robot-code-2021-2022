@@ -16,7 +16,7 @@ public class MecanumTeleOpTest extends OpMode {
 
     private long collectorFlipTime;
 
-    public static double COLLECTOR_SPEED = 0.1;
+    public static double COLLECTOR_SPEED = 0.5;
 
     @Override
     public void init() {
